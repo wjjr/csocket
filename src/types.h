@@ -48,13 +48,8 @@ enum protocol {
 
 struct context {
     enum mode mode;
-    enum protocol protocol;
     uint_16 port;
-    uint_8 threads_num;
-    uint_8 thread_index;
     uint_16 benchmark_num;
-    int_32 server_fd;
-    int_32 client_fd;
 };
 
 enum OP {

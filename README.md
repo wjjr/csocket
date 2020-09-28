@@ -4,7 +4,7 @@ A client/server application supporting concurrent TCP/UDP connections to test th
 
 Build
 -----
-To build make sure you have `gcc` and `make` installed:
+To build make sure you have `gcc` and `make` installed, as well as `protobuf-c` and `protobuf-c-rpc`:
 ```shell script
 make
 ```

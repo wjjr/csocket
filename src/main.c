@@ -15,15 +15,12 @@ static const struct option longopts[] = {
         {"client",    no_argument,       NULL, 'c'},
         {"help",      no_argument,       NULL, 'h'},
         {"server",    no_argument,       NULL, 's'},
-        {"tcp",       no_argument,       NULL, 't'},
-        {"threads",   required_argument, NULL, 'T'},
-        {"udp",       no_argument,       NULL, 'u'},
         {"port",      required_argument, NULL, 'p'},
         {NULL,        no_argument,       NULL, '\0'}
 };
 
 static void __attribute__((noreturn)) usage(const uint_8 status, const char *const progname) {
-    fprintf((status != 0) ? stderr : stdout, "Usage: %s [-c | -s] [-t | -u] [-p PORT]\n", progname);
+    fprintf((status != 0) ? stderr : stdout, "Usage: %s [-c | -s] [-p PORT]\n", progname);
 
     if (status != 0) {
         fprintf(stderr, "Try '%s --help' for more information.\n", progname);
@@ -36,10 +33,7 @@ static void __attribute__((noreturn)) usage(const uint_8 status, const char *con
     printf("  -b, --benchmark=NUM  send NUM requests and print the response time\n");
     printf("  -c, --client         run as client\n");
     printf("  -s, --server         run as server\n");
-    printf("  -t, --tcp            use the Transmission Control Protocol (TCP)\n");
-    printf("  -u, --udp            use the User Datagram Protocol (UDP)\n");
     printf("  -p, --port=PORT      use PORT as the TCP/UDP port\n");
-    printf("  -T, --threads        number of server threads (default: 4)\n");
     printf("  -h, --help           display this help text and exit\n");
 
     exit(status);
@@ -48,8 +42,7 @@ static void __attribute__((noreturn)) usage(const uint_8 status, const char *con
 int main(int argc, char *argv[]) {
     const char *progname = "csocket";
     int_32 opt;
-    bool client = false, server = false, tcp = false, udp = false;
-    uint_8 thread_num = 4;
+    bool client = false, server = false;
     uint_16 benchmark = 0, port = 0;
     struct context *context;
 
@@ -84,21 +77,6 @@ int main(int argc, char *argv[]) {
             case 's':
                 server = true;
                 break;
-            case 't':
-                tcp = true;
-                break;
-            case 'T': {
-                char *endptr;
-                long optval = strtol(optarg, &endptr, 10);
-                thread_num = (uint_8) optval;
-
-                if (*endptr != '\0' || optval <= 0 || optval > UCHAR_MAX || endptr == optarg)
-                    die(EXIT_MISTAKE, 0, "%s: invalid threads number", optarg);
-            }
-                break;
-            case 'u':
-                udp = true;
-                break;
             case 'v':
                 log_increase_level();
                 break;
@@ -107,21 +85,19 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if ((!client && !server) || (!tcp && !udp) || (benchmark > 0 && !client)) {
+    if ((!client && !server) || (benchmark > 0 && !client)) {
         usage(EXIT_MISTAKE, progname);
     }
 
     context = malloc(sizeof(struct context));
     context->mode = server ? SERVER : CLIENT;
-    context->protocol = tcp ? TCP : UDP;
     context->port = port;
-    context->threads_num = thread_num;
     context->benchmark_num = benchmark;
 
     if (context->mode == SERVER) {
-        return run_server(context);
+        run_server(context);
     } else if (benchmark) {
-        run_client_benchmark(context);
+        return run_client_benchmark(context);
     } else {
         run_client(context);
     }

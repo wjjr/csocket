@@ -4,6 +4,6 @@
 
 #include "types.h"
 
-uint_8 run_server(const struct context *);
+__attribute__((noreturn)) void run_server(const struct context *);
 
 #endif /* _CSOCKET_SERVER_H */

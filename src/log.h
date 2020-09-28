@@ -4,7 +4,7 @@
 
 #ifdef __C_DEBUG
 #include <assert.h>
-#else
+#elif !defined(_ASSERT_H)
 #define assert(_) ((void) (0))
 #endif
 
@@ -15,7 +15,7 @@
 #define EXIT_FAILURE 2
 #define NOERR 0
 
-#define BOOL_STR(x) (x ? "true" : "false")
+#define BOOL_STR(x) ((x) ? "true" : "false")
 
 #ifndef __MINGW32__
 #define _PRINTF_FORMAT(f, f_params) __attribute__((format(printf, f, f_params)))

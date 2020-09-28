@@ -13,8 +13,8 @@ endif ()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
-add_executable(${PROJECT_NAME} src/main.c src/types.h src/log.c src/log.h src/common.h src/client.c src/client.h src/server.c src/server.h)
+add_executable(${PROJECT_NAME} src/main.c src/types.h src/log.c src/log.h src/pb/calc.pb-c.c src/pb/calc.pb-c.h src/protobuf-c-rpc.h src/client.c src/client.h src/server.c src/server.h)
 add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 find_package(Threads REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads m)
+target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads m protobuf-c protobuf-c-rpc)
