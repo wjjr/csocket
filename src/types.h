@@ -48,7 +48,6 @@ enum protocol {
 
 struct context {
     enum mode mode;
-    uint_16 port;
     uint_16 benchmark_num;
 };
 

@@ -75,7 +75,7 @@ void log_debug(enum log_level log_lvl, int err_num, const char *const message_fo
         va_list args;
 
         va_start(args, message_format);
-        error_log(DEBUG, 0, err_num, message_format, args);
+        error_log(log_lvl, 0, err_num, message_format, args);
         va_end(args);
     }
 }

@@ -15,6 +15,8 @@
 #define EXIT_FAILURE 2
 #define NOERR 0
 
+#define __UNUSED __attribute__((unused))
+
 #define BOOL_STR(x) ((x) ? "true" : "false")
 
 #ifndef __MINGW32__

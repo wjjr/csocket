@@ -4,12 +4,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
+#include <time.h>
 #include "types.h"
 #include "log.h"
 #include "server.h"
 #include "client.h"
 
-static const char optstring[] = "b:chp:qstT:uv";
+static const char optstring[] = "b:chqsv";
 static const struct option longopts[] = {
         {"benchmark", required_argument, NULL, 'b'},
         {"client",    no_argument,       NULL, 'c'},
@@ -27,13 +28,12 @@ static void __attribute__((noreturn)) usage(const uint_8 status, const char *con
         exit(status);
     }
 
-    printf("Run a client/server application supporting concurrent TCP/UDP connections and test the response time.\n\n");
+    printf("Run a client/server application to test the response time using Kafka server.\n\n");
 
     printf("Mode selection and protocol control:\n");
     printf("  -b, --benchmark=NUM  send NUM requests and print the response time\n");
     printf("  -c, --client         run as client\n");
     printf("  -s, --server         run as server\n");
-    printf("  -p, --port=PORT      use PORT as the TCP/UDP port\n");
     printf("  -h, --help           display this help text and exit\n");
 
     exit(status);
@@ -43,8 +43,10 @@ int main(int argc, char *argv[]) {
     const char *progname = "csocket";
     int_32 opt;
     bool client = false, server = false;
-    uint_16 benchmark = 0, port = 0;
+    uint_16 benchmark = 0;
     struct context *context;
+
+    srand((uint_32) (time(NULL) - UINT24_MAX));
 
     while ((opt = getopt_long(argc, argv, optstring, longopts, NULL)) != -1) {
         switch (opt) {
@@ -62,15 +64,6 @@ int main(int argc, char *argv[]) {
                 break;
             case 'h':
                 usage(EXIT_SUCCESS, progname);
-            case 'p': {
-                char *endptr;
-                long optval = strtol(optarg, &endptr, 10);
-                port = (uint_16) optval;
-
-                if (*endptr != '\0' || optval <= 0 || optval > USHRT_MAX || endptr == optarg)
-                    die(EXIT_MISTAKE, 0, "%s: invalid port argument", optarg);
-            }
-                break;
             case 'q':
                 log_silence();
                 break;
@@ -91,7 +84,6 @@ int main(int argc, char *argv[]) {
 
     context = malloc(sizeof(struct context));
     context->mode = server ? SERVER : CLIENT;
-    context->port = port;
     context->benchmark_num = benchmark;
 
     if (context->mode == SERVER) {
