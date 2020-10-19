@@ -17,4 +17,4 @@ add_executable(${PROJECT_NAME} src/main.c src/types.h src/log.c src/log.h  src/k
 add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 find_package(Threads REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads m rdkafka)
+target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads m uuid rdkafka)

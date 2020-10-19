@@ -2,7 +2,7 @@ TARGET=csocket
 CC=gcc
 CFLAGS=-std=c99 -Wall -Wextra -pedantic-errors -O2
 LDFLAGS=-Wl,-gc-sections -s
-LIBS=-lpthread -lm -lrdkafka
+LIBS=-lpthread -lm -luuid -lrdkafka
 SRC_DIR=src
 OBJ_DIR=obj
 OUT_DIR=bin

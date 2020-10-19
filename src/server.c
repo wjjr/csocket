@@ -7,6 +7,8 @@
 #include "common.h"
 #include "kafka.h"
 
+static bool rebalanced = false;
+
 void run_server(const struct context *const ctx __UNUSED) {
     const char *broker_id = "127.0.0.1:9092",
             *group_id = "server",
@@ -21,14 +23,14 @@ void run_server(const struct context *const ctx __UNUSED) {
     char err_str[512];
     int_32 reply;
 
+    rd_kafka_conf_set_rebalance_cb(rkc, rebalance_callback);
+    rd_kafka_conf_set_opaque(rkc, &rebalanced);
+
     if (RD_KAFKA_CONF_OK != rd_kafka_conf_set(rkc, "bootstrap.servers", broker_id, err_str, sizeof(err_str)))
         die(EXIT_FAILURE, NOERR, "Failed to set bootstrap.servers: %s", err_str);
 
     if (RD_KAFKA_CONF_OK != rd_kafka_conf_set(rkc, "group.id", group_id, err_str, sizeof(err_str)))
         die(EXIT_FAILURE, NOERR, "Failed to set group.id: %s", err_str);
-
-    if (RD_KAFKA_CONF_OK != rd_kafka_conf_set(rkc, "auto.offset.reset", "latest", err_str, sizeof(err_str)))
-        die(EXIT_FAILURE, NOERR, "Failed to set auto.offset.reset: %s", err_str);
 
     if (NULL == (rk_p = rd_kafka_new(RD_KAFKA_PRODUCER, rd_kafka_conf_dup(rkc), err_str, sizeof(err_str))))
         die(EXIT_FAILURE, NOERR, "Failed to create new producer: %s", err_str);
@@ -44,6 +46,9 @@ void run_server(const struct context *const ctx __UNUSED) {
 
     if (RD_KAFKA_RESP_ERR_NO_ERROR != (r_err = kafka_subscribe(rk_c, consumer_topic, RD_KAFKA_PARTITION_UA)))
         die(EXIT_FAILURE, NOERR, "Failed to subscribe to %s: %s", consumer_topic, rd_kafka_err2str(r_err));
+
+    while (!rebalanced)
+        kafka_consumer_poll(rk_c, 200);
 
     log_print(INFO, "Started");
 

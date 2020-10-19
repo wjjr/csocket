@@ -5,11 +5,10 @@
 #include "log.h"
 
 static __attribute__((noreturn)) void *_producer_polling(rd_kafka_t *const rk) {
-    log_debug(DEBUG, NOERR, "Started polling");
+    log_debug(DEBUG, NOERR, "Started producer polling");
 
-    for (;;) {
-        log_debug(DEBUG, NOERR, "Polling events: %d", rd_kafka_poll(rk, 5000));
-    }
+    for (;;)
+        rd_kafka_poll(rk, 5000);
 }
 
 void kafka_start_producer_polling(rd_kafka_t *rk) {
