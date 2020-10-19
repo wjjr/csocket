@@ -59,7 +59,7 @@ void run_server(const struct context *const ctx __UNUSED) {
         if (RD_KAFKA_RESP_ERR_NO_ERROR != rkm->err) {
             log_print(ERROR, "Failed to consume from \"%s\": %s", consumer_topic, rd_kafka_message_errstr(rkm));
         } else {
-            log_debug(NOISY, NOERR, "Message %"PRId64" received from topic \"%s\"", rkm->offset, rd_kafka_topic_name(rkm->rkt));
+            log_print(NOISY, "Message %"PRId64" received from topic \"%s\"", rkm->offset, rd_kafka_topic_name(rkm->rkt));
 
             if (RD_KAFKA_RESP_ERR_NO_ERROR != (r_err = rd_kafka_message_headers(rkm, &rkm_headers))) {
                 log_print(ERROR, "Failed to get message header: %s", rd_kafka_err2str(r_err));
