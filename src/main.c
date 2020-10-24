@@ -4,21 +4,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
+#include <time.h>
 #include "types.h"
 #include "log.h"
 #include "server.h"
 #include "client.h"
 
-static const char optstring[] = "b:chp:qstT:uv";
+static const char optstring[] = "b:chp:qstuv";
 static const struct option longopts[] = {
         {"benchmark", required_argument, NULL, 'b'},
         {"client",    no_argument,       NULL, 'c'},
         {"help",      no_argument,       NULL, 'h'},
+        {"port",      required_argument, NULL, 'p'},
         {"server",    no_argument,       NULL, 's'},
         {"tcp",       no_argument,       NULL, 't'},
-        {"threads",   required_argument, NULL, 'T'},
         {"udp",       no_argument,       NULL, 'u'},
-        {"port",      required_argument, NULL, 'p'},
         {NULL,        no_argument,       NULL, '\0'}
 };
 
@@ -39,7 +39,6 @@ static void __attribute__((noreturn)) usage(const uint_8 status, const char *con
     printf("  -t, --tcp            use the Transmission Control Protocol (TCP)\n");
     printf("  -u, --udp            use the User Datagram Protocol (UDP)\n");
     printf("  -p, --port=PORT      use PORT as the TCP/UDP port\n");
-    printf("  -T, --threads        number of server threads (default: 4)\n");
     printf("  -h, --help           display this help text and exit\n");
 
     exit(status);
@@ -49,9 +48,10 @@ int main(int argc, char *argv[]) {
     const char *progname = "csocket";
     int_32 opt;
     bool client = false, server = false, tcp = false, udp = false;
-    uint_8 thread_num = 4;
     uint_16 benchmark = 0, port = 0;
     struct context *context;
+
+    srand((uint_32) (time(NULL) - UINT24_MAX));
 
     while ((opt = getopt_long(argc, argv, optstring, longopts, NULL)) != -1) {
         switch (opt) {
@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
                 benchmark = (uint_16) optval;
 
                 if (*endptr != '\0' || optval <= 0 || optval > USHRT_MAX || endptr == optarg)
-                    die(EXIT_MISTAKE, 0, "%s: invalid port argument", optarg);
+                    die(EXIT_MISTAKE, 0, "%s: invalid benchmark argument", optarg);
             }
                 break;
             case 'c':
@@ -87,15 +87,6 @@ int main(int argc, char *argv[]) {
             case 't':
                 tcp = true;
                 break;
-            case 'T': {
-                char *endptr;
-                long optval = strtol(optarg, &endptr, 10);
-                thread_num = (uint_8) optval;
-
-                if (*endptr != '\0' || optval <= 0 || optval > UCHAR_MAX || endptr == optarg)
-                    die(EXIT_MISTAKE, 0, "%s: invalid threads number", optarg);
-            }
-                break;
             case 'u':
                 udp = true;
                 break;
@@ -115,13 +106,12 @@ int main(int argc, char *argv[]) {
     context->mode = server ? SERVER : CLIENT;
     context->protocol = tcp ? TCP : UDP;
     context->port = port;
-    context->threads_num = thread_num;
     context->benchmark_num = benchmark;
 
     if (context->mode == SERVER) {
-        return run_server(context);
+        run_server(context);
     } else if (benchmark) {
-        run_client_benchmark(context);
+        return run_client_benchmark(context);
     } else {
         run_client(context);
     }

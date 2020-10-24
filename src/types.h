@@ -1,6 +1,6 @@
 /* csocket: Copyright (c) 2020 Wendell Júnior - This code is licensed under MIT license (see LICENSE for details) */
-#ifndef _CSOCKET_TYPES_H
-#define _CSOCKET_TYPES_H
+#ifndef CSOCKET_TYPES_H
+#define CSOCKET_TYPES_H
 
 #include <stdio.h>
 #include <stddef.h>
@@ -50,11 +50,7 @@ struct context {
     enum mode mode;
     enum protocol protocol;
     uint_16 port;
-    uint_8 threads_num;
-    uint_8 thread_index;
     uint_16 benchmark_num;
-    int_32 server_fd;
-    int_32 client_fd;
 };
 
 enum OP {
@@ -70,4 +66,4 @@ struct request {
     enum OP op;
 } __attribute__ ((__packed__));
 
-#endif /* _CSOCKET_TYPES_H */
+#endif /* CSOCKET_TYPES_H */

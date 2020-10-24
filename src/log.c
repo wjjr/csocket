@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-static enum log_level log_level = WARN;
+static enum log_level log_level = INFO;
 
 static __inline char error_prefix(const enum log_level log_lvl) {
     switch (log_lvl) {
@@ -59,6 +59,16 @@ void log_print(const enum log_level log_lvl, const char *const message_format, .
     }
 }
 
+void log_error(const enum log_level log_lvl, const int err_num, const char *const message_format, ...) {
+    if (log_lvl <= log_level) {
+        va_list args;
+
+        va_start(args, message_format);
+        error_log(log_lvl, 0, err_num, message_format, args);
+        va_end(args);
+    }
+}
+
 void die(const unsigned char status, const int err_num, const char *const message_format, ...) {
     va_list args;
 
@@ -69,13 +79,13 @@ void die(const unsigned char status, const int err_num, const char *const messag
     exit(EXIT_FAILURE);
 }
 
-#ifdef __C_DEBUG
+#ifdef _CSOCKET_DEBUG
 void log_debug(enum log_level log_lvl, int err_num, const char *const message_format, ...) {
     if (log_lvl <= log_level) {
         va_list args;
 
         va_start(args, message_format);
-        error_log(DEBUG, 0, err_num, message_format, args);
+        error_log(log_lvl, 0, err_num, message_format, args);
         va_end(args);
     }
 }

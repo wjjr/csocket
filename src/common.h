@@ -1,24 +1,25 @@
 /* csocket: Copyright (c) 2020 Wendell Júnior - This code is licensed under MIT license (see LICENSE for details) */
-#ifndef _CSOCKET_COMMON_H
-#define _CSOCKET_COMMON_H
-
-#include "types.h"
+#ifndef CSOCKET_COMMON_H
+#define CSOCKET_COMMON_H
 
 #include <arpa/inet.h>
+#include "log.h"
 
-static __always_inline uint_32 calc(const struct request req) {
-    switch (req.op) {
+static __UNUSED int_32 calc(const struct request r) {
+    switch (r.op) {
         case ADD:
-            return ntohs(req.a) + ntohs(req.b);
+            return (int_32) htonl(ntohs(r.a) + ntohs(r.b));
         case SUB:
-            return ntohs(req.a) - ntohs(req.b);
+            return (int_32) htonl(ntohs(r.a) - ntohs(r.b));
         case MUL:
-            return ntohs(req.a) * ntohs(req.b);
+            return (int_32) htonl(ntohs(r.a) * ntohs(r.b));
         case DIV:
-            return ntohs(req.a) / ntohs(req.b);
+            return (int_32) htonl(ntohs(r.a) / ntohs(r.b));
     }
 
-    return 0;
+    log_debug(ERROR, NOERR, "Wrong operation");
+
+    return (int_32) htonl((uint_32) INT32_MIN);
 }
 
-#endif /* _CSOCKET_COMMON_H */
+#endif /* CSOCKET_COMMON_H */
