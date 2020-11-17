@@ -2,7 +2,8 @@
 #ifndef CSOCKET_RH_SERVER_H
 #define CSOCKET_RH_SERVER_H
 
-#include "../types.h"
+#include "types/primitive.h"
+#include "types.h"
 
 typedef struct rh_server_ctx rh_server_ctx;
 typedef struct rh_client_addr rh_client_addr;

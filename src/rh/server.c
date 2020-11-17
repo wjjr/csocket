@@ -24,7 +24,7 @@ rh_server_ctx *rh_server_new(const enum protocol protocol, const uint_16 port_to
     int_32 server_fd, optval = 1;
     struct sockaddr_in address = {
             .sin_family = AF_INET,
-            .sin_addr = {.s_addr = htonl(INADDR_LOOPBACK)},
+            .sin_addr = {.s_addr = htonl(INADDR_ANY)},
             .sin_port = htons(port_to_listen)
     };
 

@@ -2,8 +2,9 @@
 #ifndef CSOCKET_SERVER_H
 #define CSOCKET_SERVER_H
 
-#include "types.h"
+#include "types/primitive.h"
+#include "rh/types.h"
 
-__attribute__((noreturn)) void run_server(const struct context *);
+__attribute__((noreturn)) void run_server(enum protocol protocol, uint_16 port);
 
 #endif /* CSOCKET_SERVER_H */

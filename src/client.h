@@ -2,10 +2,10 @@
 #ifndef CSOCKET_CLIENT_H
 #define CSOCKET_CLIENT_H
 
-#include "types.h"
+#include "types/primitive.h"
 
-__attribute__((noreturn)) void run_client(const struct context *);
+__attribute__((noreturn)) void run_client(void);
 
-uint_8 run_client_benchmark(const struct context *);
+uint_8 run_client_benchmark(uint_16 benchmark_num);
 
 #endif /* CSOCKET_CLIENT_H */

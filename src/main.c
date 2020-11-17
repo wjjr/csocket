@@ -5,25 +5,28 @@
 #include <string.h>
 #include <getopt.h>
 #include <time.h>
-#include "types.h"
+#include <limits.h>
 #include "log.h"
+#include "rh/types.h"
+#include "np/naming_proxy.h"
 #include "server.h"
 #include "client.h"
 
-static const char optstring[] = "b:chp:qstuv";
+static const char optstring[] = "b:chp:qsStuv";
 static const struct option longopts[] = {
         {"benchmark", required_argument, NULL, 'b'},
         {"client",    no_argument,       NULL, 'c'},
         {"help",      no_argument,       NULL, 'h'},
         {"port",      required_argument, NULL, 'p'},
         {"server",    no_argument,       NULL, 's'},
+        {"service",   required_argument, NULL, 'S'},
         {"tcp",       no_argument,       NULL, 't'},
         {"udp",       no_argument,       NULL, 'u'},
         {NULL,        no_argument,       NULL, '\0'}
 };
 
 static void __attribute__((noreturn)) usage(const uint_8 status, const char *const progname) {
-    fprintf((status != 0) ? stderr : stdout, "Usage: %s [-c | -s] [-t | -u] [-p PORT]\n", progname);
+    fprintf((status != 0) ? stderr : stdout, "Usage: %s [-c | -s [-t | -u] -p PORT ]\n", progname);
 
     if (status != 0) {
         fprintf(stderr, "Try '%s --help' for more information.\n", progname);
@@ -39,6 +42,7 @@ static void __attribute__((noreturn)) usage(const uint_8 status, const char *con
     printf("  -t, --tcp            use the Transmission Control Protocol (TCP)\n");
     printf("  -u, --udp            use the User Datagram Protocol (UDP)\n");
     printf("  -p, --port=PORT      use PORT as the TCP/UDP port\n");
+    printf("  --service            service address in the format <SERVICE_NAME>+<PROTO>://<HOSTNAME>:<PORT>\n");
     printf("  -h, --help           display this help text and exit\n");
 
     exit(status);
@@ -49,9 +53,8 @@ int main(int argc, char *argv[]) {
     int_32 opt;
     bool client = false, server = false, tcp = false, udp = false;
     uint_16 benchmark = 0, port = 0;
-    struct context *context;
 
-    srand((uint_32) (time(NULL) - UINT24_MAX));
+    srand((uint_32) (time(NULL) - 16777215U));
 
     while ((opt = getopt_long(argc, argv, optstring, longopts, NULL)) != -1) {
         switch (opt) {
@@ -84,6 +87,20 @@ int main(int argc, char *argv[]) {
             case 's':
                 server = true;
                 break;
+            case 'S': {
+                if (optarg == NULL)
+                    usage(EXIT_MISTAKE, progname);
+
+                char arg[256];
+                strcpy(arg, optarg);
+
+                const char *service_name = strtok(arg, "+");
+                const char *hostname = strtok(NULL, "+");
+
+                if (service_name == NULL || hostname == NULL || !np_add_service(service_name, hostname))
+                    usage(EXIT_MISTAKE, progname);
+            }
+                break;
             case 't':
                 tcp = true;
                 break;
@@ -98,21 +115,15 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if ((!client && !server) || (!tcp && !udp) || (benchmark > 0 && !client)) {
+    if ((!client && !server) || (server && ((!tcp && !udp) || !port)) || (client && (tcp || udp || port)) || (benchmark > 0 && !client)) {
         usage(EXIT_MISTAKE, progname);
     }
 
-    context = malloc(sizeof(struct context));
-    context->mode = server ? SERVER : CLIENT;
-    context->protocol = tcp ? TCP : UDP;
-    context->port = port;
-    context->benchmark_num = benchmark;
-
-    if (context->mode == SERVER) {
-        run_server(context);
+    if (server) {
+        run_server(tcp ? TCP : UDP, port);
     } else if (benchmark) {
-        return run_client_benchmark(context);
+        return run_client_benchmark(benchmark);
     } else {
-        run_client(context);
+        run_client();
     }
 }

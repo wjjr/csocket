@@ -1,6 +1,6 @@
 TARGET=csocket
 CC=gcc
-CFLAGS=-std=c99 -Wall -Wextra -pedantic-errors -O2
+CFLAGS=-std=c99 -Wall -Wextra -pedantic-errors -O2 -Isrc
 LDFLAGS=-Wl,-gc-sections -s
 LIBS=-lpthread -lm
 SRC_DIR=src
