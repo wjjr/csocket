@@ -5,6 +5,6 @@
 #include "types/primitive.h"
 #include "rh/types.h"
 
-__attribute__((noreturn)) void run_server(enum protocol protocol, uint_16 port);
+__attribute__((noreturn)) void run_server(enum protocol protocol, uint_16 port, uint_8 thread_num);
 
 #endif /* CSOCKET_SERVER_H */

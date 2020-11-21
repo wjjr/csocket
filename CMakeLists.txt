@@ -47,6 +47,16 @@ target_sources(myM
         src/m/marshaller.h
 )
 
+add_library(myI)
+target_sources(myI
+    PRIVATE
+        src/i/service.c
+        src/i/invoker.c
+    PUBLIC
+        src/i/service.h
+        src/i/invoker.h
+)
+
 add_library(myRH)
 target_sources(myRH
     PRIVATE
@@ -66,11 +76,22 @@ target_sources(myLog
         src/log.h
 )
 
+add_library(thpool)
+target_compile_options(thpool PRIVATE -Wno-everything)
+target_sources(thpool
+    PRIVATE
+        lib/thpool/thpool.c
+    PUBLIC
+        lib/thpool/thpool.h
+)
+
 add_executable(${PROJECT_NAME} src/main.c src/types/primitive.h src/client.c src/client.h src/server.c src/server.h)
 
 include_directories(src)
+target_include_directories(myI SYSTEM PUBLIC lib)
 find_package(Threads REQUIRED)
 target_link_libraries(myCP PRIVATE myNP myR)
 target_link_libraries(myR PRIVATE myM myRH)
-target_link_libraries(${PROJECT_NAME} PRIVATE myLog myCP myNP Threads::Threads m)
+target_link_libraries(myI PRIVATE myM myRH thpool)
+target_link_libraries(${PROJECT_NAME} PRIVATE myLog myCP myNP myI Threads::Threads m)
 add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

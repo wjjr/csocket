@@ -1,0 +1,3 @@
+[submodule "lib/thpool"]
+	path = lib/thpool
+	url = https://github.com/Pithikos/C-Thread-Pool.git
