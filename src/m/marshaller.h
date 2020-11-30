@@ -7,4 +7,8 @@ void marshall(const struct data *, const char *service, const char *method, stru
 
 void unmarshall(const struct value *, char **service, char **method, struct data **);
 
+void marshall_free(struct value *value);
+
+void unmarshall_free(char **service, char **method, struct data **);
+
 #endif /* CSOCKET_MARSHALLER_H */

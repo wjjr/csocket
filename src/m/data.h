@@ -18,15 +18,15 @@ typedef struct value {
 
 typedef struct data data;
 
-struct data *data_new(uint8_t size);
+struct data *data_new(uint_8 size);
 
 void data_destroy(struct data *);
 
-void data_push(struct data *, enum type type, uint8_t size, const void *value);
+void data_push(struct data *, enum type type, uint_8 size, const void *value);
 
 void data_pop(struct data *, struct value *);
 
-uint_8 data_size(const struct data*);
+uint_8 data_size(const struct data *);
 
 const struct value *data_get_value(const struct data *, uint_8 index);
 

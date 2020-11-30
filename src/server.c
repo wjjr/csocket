@@ -4,7 +4,7 @@
 #include "i/invoker.h"
 #include "i/service.h"
 
-static bool data_to_params(data *d, uint_16 *a, uint_16 *b) {
+static bool data_to_params(const data *d, uint_16 *const a, uint_16 *const b) {
     const value *const v_a = data_get_value(d, 0);
     const value *const v_b = data_get_value(d, 1);
 
@@ -17,7 +17,7 @@ static bool data_to_params(data *d, uint_16 *a, uint_16 *b) {
     return false;
 }
 
-static void calc_add(data *d, data *r) {
+static void calc_add(const data *const d, data *const r) {
     uint_16 a, b;
     int_32 result;
 
@@ -27,7 +27,7 @@ static void calc_add(data *d, data *r) {
     }
 }
 
-static void calc_sub(data *d, data *r) {
+static void calc_sub(const data *const d, data *const r) {
     uint_16 a, b;
     int_32 result;
 
@@ -37,7 +37,7 @@ static void calc_sub(data *d, data *r) {
     }
 }
 
-static void calc_mul(data *d, data *r) {
+static void calc_mul(const data *const d, data *const r) {
     uint_16 a, b;
     int_32 result;
 
@@ -47,7 +47,7 @@ static void calc_mul(data *d, data *r) {
     }
 }
 
-static void calc_div(data *d, data *r) {
+static void calc_div(const data *const d, data *const r) {
     uint_16 a, b;
     int_32 result;
 

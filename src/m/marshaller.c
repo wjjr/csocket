@@ -142,3 +142,27 @@ void unmarshall(const struct value *const value, char **const service, char **co
 
     free(bytes);
 }
+
+void marshall_free(struct value *const value) {
+    if (value != NULL && value->value != NULL) {
+        free(value->value);
+        value->value = NULL;
+    }
+}
+
+void unmarshall_free(char **const service, char **const method, struct data **const data) {
+    if (service != NULL && *service != NULL) {
+        free(*service);
+        *service = NULL;
+    }
+
+    if (method != NULL && *method != NULL) {
+        free(*method);
+        *method = NULL;
+    }
+
+    if (data != NULL && *data != NULL) {
+        data_destroy(*data);
+        *data = NULL;
+    }
+}

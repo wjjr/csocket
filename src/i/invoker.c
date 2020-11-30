@@ -37,7 +37,7 @@ static void process_req(struct req *req) {
     struct value bytes_value = {0};
     char *service_name = NULL, *method = NULL;
     struct data *request = NULL, *reply;
-    void (*func)(data *, data *) = NULL;
+    void (*func)(const data *, data *) = NULL;
 
     bytes_value.type = BYTES;
     bytes_value.size = req->msg->data_size;
@@ -64,8 +64,14 @@ static void process_req(struct req *req) {
                 if (bytes_value.size > 0 && rh_send_to_client(req->msg->return_addr, bytes_value.value, bytes_value.size)) {
                     log_print(NOISY, "Sent message with %ld bytes to client", bytes_value.size);
                 }
+
+                marshall_free(&bytes_value);
             }
+
+            data_destroy(reply);
         }
+
+        unmarshall_free(&service_name, &method, &request);
     }
 
     rh_client_msg_destroy(req->msg, false);
@@ -103,6 +109,7 @@ void invoker_run(struct invoker *const invoker, const struct service *const serv
         thpool_add_work(invoker->thpool, (void (*)(void *)) run_server, invoker);
 
     thpool_wait(invoker->thpool);
+    thpool_destroy(invoker->thpool);
 
     die(EXIT_FAILURE, NOERR, "Server died");
 }

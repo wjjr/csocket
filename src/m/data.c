@@ -5,12 +5,12 @@
 #include <memory.h>
 
 struct data {
-    uint8_t capacity;
-    uint8_t count;
+    uint_8 capacity;
+    uint_8 count;
     struct value *values;
 };
 
-struct data *data_new(const uint8_t size) {
+struct data *data_new(const uint_8 size) {
     struct data *data = malloc(sizeof(struct data));
 
     data->count = 0;
@@ -30,13 +30,17 @@ void data_destroy(struct data *const data) {
     free(data);
 }
 
-static void data_resize(struct data *const data, const uint8_t size) {
-    data->capacity = size;
+static void data_resize(struct data *const data, const uint_8 size) {
     data->values = realloc(data->values, (sizeof(struct value) * (size + 1)));
+
+    for (uint_8 i = data->capacity; i < size; ++i)
+        data->values[i].value = NULL;
+
+    data->capacity = size;
     data->values[size].value = NULL;
 }
 
-void data_push(struct data *const data, const enum type type, const uint8_t size, const void *const value) {
+void data_push(struct data *const data, const enum type type, const uint_8 size, const void *const value) {
     struct value *data_value;
 
     if (data->count == data->capacity)

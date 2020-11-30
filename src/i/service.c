@@ -6,7 +6,7 @@
 
 struct method {
     const char *method;
-    void (*func)(struct data *, struct data *);
+    void (*func)(const struct data *, struct data *);
 };
 
 struct service {
@@ -27,7 +27,7 @@ struct service *service_new(const char *const service_name, const uint_8 methods
     return service;
 }
 
-void service_add_method(struct service *const service, const char *const method, void (*const func)(struct data *, struct data *)) {
+void service_add_method(struct service *const service, const char *const method, void (*const func)(const struct data *, struct data *)) {
     if (service->methods_count < service->methods_capacity) {
         service->methods[service->methods_count].method = method;
         service->methods[service->methods_count].func = func;
@@ -35,7 +35,7 @@ void service_add_method(struct service *const service, const char *const method,
     }
 }
 
-void service_get_method(const struct service *service, const char *method, void (**const func)(data *, data *)) {
+void service_get_method(const struct service *service, const char *method, void (**const func)(const data *, data *)) {
     for (uint_8 i = 0; i < service->methods_count; ++i) {
         if (strcmp(method, service->methods[i].method) == 0) {
             *func = service->methods[i].func;

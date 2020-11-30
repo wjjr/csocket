@@ -174,6 +174,7 @@ static void close_client(const rh_client_addr *const return_addr) {
         return_addr->server_ctx->clients[client->pos] = NULL;
 
         free(buffer);
+        free(client);
     }
 }
 
