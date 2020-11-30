@@ -10,6 +10,6 @@ struct invoker;
 
 struct invoker *invoker_new(enum protocol, uint_16 port, uint_8 threads_num);
 
-__attribute__((noreturn)) void invoker_run(struct invoker *, const struct service *);
+__attribute__((noreturn)) void invoker_run(struct invoker *, struct service *);
 
 #endif /* CSOCKET_INVOKER_H */

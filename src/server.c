@@ -57,8 +57,8 @@ static void calc_div(const data *const d, data *const r) {
     }
 }
 
-void run_server(const enum protocol protocol, const uint_16 port, const uint_8 thread_num) {
-    struct service *service = service_new("calc", 4);
+void run_server(const enum protocol protocol, const uint_16 port, const uint_8 thread_num, const uint_8 instances_num) {
+    struct service *service = service_new("calc", 4, instances_num);
     struct invoker *invoker = invoker_new(protocol, port, thread_num);
 
     service_add_method(service, "add", calc_add);

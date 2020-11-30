@@ -13,11 +13,12 @@
 #include "server.h"
 #include "client.h"
 
-static const char optstring[] = "b:chp:qsStTuv";
+static const char optstring[] = "b:chI:p:qsS:tT:uv";
 static const struct option longopts[] = {
         {"benchmark", required_argument, NULL, 'b'},
         {"client",    no_argument,       NULL, 'c'},
         {"help",      no_argument,       NULL, 'h'},
+        {"instances", required_argument, NULL, 'I'},
         {"port",      required_argument, NULL, 'p'},
         {"server",    no_argument,       NULL, 's'},
         {"service",   required_argument, NULL, 'S'},
@@ -45,7 +46,8 @@ static void __attribute__((noreturn)) usage(const uint_8 status, const char *con
     printf("  -u, --udp            use the User Datagram Protocol (UDP)\n");
     printf("  -p, --port=PORT      use PORT as the TCP/UDP port\n");
     printf("  -T, --threads        number of server threads (default: 4)\n");
-    printf("  --service            service address in the format <SERVICE_NAME>+<PROTO>://<HOSTNAME>:<PORT>\n");
+    printf("  -I, --instances      number of service instances (default: 10)\n");
+    printf("  -S, --service        service address in the format <SERVICE_NAME>+<PROTO>://<HOSTNAME>:<PORT>\n");
     printf("  -h, --help           display this help text and exit\n");
 
     exit(status);
@@ -56,7 +58,7 @@ int main(int argc, char *argv[]) {
     int_32 opt;
     bool client = false, server = false, tcp = false, udp = false;
     uint_16 benchmark = 0, port = 0;
-    uint_8 threads_num = 4;
+    uint_8 threads_num = 4, instances_num = 10;
 
     srand((uint_32) (time(NULL) - 16777215U));
 
@@ -78,6 +80,15 @@ int main(int argc, char *argv[]) {
                 break;
             case 'h':
                 usage(EXIT_SUCCESS, progname);
+            case 'I': {
+                char *endptr;
+                long optval = strtol(optarg, &endptr, 10);
+                instances_num = (uint_8) optval;
+
+                if (*endptr != '\0' || optval <= 0 || optval > CHAR_MAX || endptr == optarg)
+                    die(EXIT_MISTAKE, 0, "%s: invalid instances argument", optarg);
+            }
+                break;
             case 'p': {
                 char *endptr;
                 long optval = strtol(optarg, &endptr, 10);
@@ -94,9 +105,6 @@ int main(int argc, char *argv[]) {
                 server = true;
                 break;
             case 'S': {
-                if (optarg == NULL)
-                    usage(EXIT_MISTAKE, progname);
-
                 char arg[256];
                 strcpy(arg, optarg);
 
@@ -135,7 +143,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (server) {
-        run_server(tcp ? TCP : UDP, port, threads_num);
+        run_server(tcp ? TCP : UDP, port, threads_num, instances_num);
     } else if (benchmark) {
         return run_client_benchmark(benchmark);
     } else {

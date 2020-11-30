@@ -13,7 +13,7 @@ struct invoker {
     uint_16 port;
     threadpool thpool;
     uint_8 threads_num;
-    const struct service *service;
+    struct service *service;
 };
 
 struct req {
@@ -37,7 +37,8 @@ static void process_req(struct req *req) {
     struct value bytes_value = {0};
     char *service_name = NULL, *method = NULL;
     struct data *request = NULL, *reply;
-    void (*func)(const data *, data *) = NULL;
+    struct service_instance *inst;
+    service_method *func;
 
     bytes_value.type = BYTES;
     bytes_value.size = req->msg->data_size;
@@ -46,7 +47,8 @@ static void process_req(struct req *req) {
     unmarshall(&bytes_value, &service_name, &method, &request);
 
     if (request != NULL && service_name != NULL && method != NULL) {
-        service_get_method(req->invoker->service, method, &func);
+        inst = service_get_instance(req->invoker->service);
+        func = service_get_method(inst, method);
 
         if (func != NULL) {
             log_print(NOISY, "Received message with %ld bytes from client", bytes_value.size);
@@ -71,9 +73,10 @@ static void process_req(struct req *req) {
             data_destroy(reply);
         }
 
-        unmarshall_free(&service_name, &method, &request);
+        service_release_instance(req->invoker->service, inst);
     }
 
+    unmarshall_free(&service_name, &method, &request);
     rh_client_msg_destroy(req->msg, false);
     free(req);
 }
@@ -102,7 +105,7 @@ static __attribute__((noreturn)) void run_server(const struct invoker *const inv
     }
 }
 
-void invoker_run(struct invoker *const invoker, const struct service *const service) {
+void invoker_run(struct invoker *const invoker, struct service *const service) {
     invoker->service = service;
 
     for (uint_8 i = 0; i < invoker->threads_num; ++i)
